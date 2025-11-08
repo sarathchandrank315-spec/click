@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.click.aifa.R
@@ -15,6 +16,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.tabs.TabLayout
 
 class StatisticsFragment : Fragment() {
 
@@ -27,32 +29,51 @@ class StatisticsFragment : Fragment() {
     ): View {
         _binding = FragmentOverviewBinding.inflate(inflater, container, false)
         setupBarChart(binding.barChart)
+        setupTabs()
         return binding.root
     }
+
     private fun setupTabs() {
-        setTabSelected(binding.btnIncome) // default
+        with(binding) {
+            val incomeTab = tabLayout2.newTab().setCustomView(R.layout.custom_tab_item)
+            val expenseTab = tabLayout2.newTab().setCustomView(R.layout.custom_tab_item)
 
-        binding.btnIncome.setOnClickListener {
-            setTabSelected(binding.btnIncome)
-            setTabUnselected(binding.btnExpenses)
-//            filterTransactions("income")
+            incomeTab.customView?.findViewById<TextView>(R.id.tabText)?.text = "Income"
+            expenseTab.customView?.findViewById<TextView>(R.id.tabText)?.text = "Expense"
+
+            tabLayout2.addTab(incomeTab, true) // Select Income by default
+            tabLayout2.addTab(expenseTab)
+            tabLayout2.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    val view = tab.customView ?: return
+                    val text = view.findViewById<TextView>(R.id.tabText)
+
+                    if (tab.position == 0) {
+                        // Income Tab
+                        view.setBackgroundResource(R.drawable.income_selected_bg)
+                        text.setTextColor(Color.WHITE)
+                    } else {
+                        // Expense Tab
+                        view.setBackgroundResource(R.drawable.expense_selected_bg)
+                        text.setTextColor(Color.WHITE)
+                    }
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {
+                    val view = tab?.customView ?: return
+                    val text = view.findViewById<TextView>(R.id.tabText)
+
+                    view.setBackgroundResource(R.drawable.tab_background_shape)
+                    text.setTextColor(Color.DKGRAY)
+                }
+
+                override fun onTabReselected(p0: TabLayout.Tab?) {
+                    //TODO("Not yet implemented")
+                }
+            })
         }
-
-        binding.btnExpenses.setOnClickListener {
-            setTabSelected(binding.btnExpenses)
-            setTabUnselected(binding.btnIncome)
-//            filterTransactions("expense")
-        }
-    }
-    private fun setTabSelected(button: MaterialButton) {
-        button.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.tab_selected))
-        button.setTextColor(Color.WHITE)
     }
 
-    private fun setTabUnselected(button: MaterialButton) {
-        button.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.tab_unselected))
-        button.setTextColor(Color.BLACK)
-    }
     private fun setupBarChart(barChart: BarChart) {
         val incomeEntries = listOf(
             BarEntry(1f, 2000f),
