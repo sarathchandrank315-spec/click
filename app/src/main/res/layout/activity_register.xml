@@ -4,9 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    tools:context=".ui.theme.ui.register.RegisterActivity">
-
+    android:fitsSystemWindows="true"
+    tools:context=".ui.register.RegisterActivity">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVerticalLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.080" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVerticalRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.920" />
     <TextView
         android:id="@+id/tvRegisterTitle"
         android:layout_width="wrap_content"
@@ -22,14 +33,14 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cntName"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginVertical="10dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalRight"
+        app:layout_constraintStart_toStartOf="@id/guidelineVerticalLeft"
         app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle"
         app:strokeColor="#EEEEEE"
         app:strokeWidth="1dp">
@@ -47,14 +58,14 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cntAge"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginVertical="10dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalRight"
+        app:layout_constraintStart_toStartOf="@id/guidelineVerticalLeft"
         app:layout_constraintTop_toBottomOf="@id/cntName"
         app:strokeColor="#EEEEEE"
         app:strokeWidth="1dp">
@@ -72,14 +83,14 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cntGender"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginVertical="10dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalRight"
+        app:layout_constraintStart_toStartOf="@id/guidelineVerticalLeft"
         app:layout_constraintTop_toBottomOf="@id/cntAge"
         app:strokeColor="#EEEEEE"
         app:strokeWidth="1dp">
@@ -94,18 +105,17 @@
             android:padding="12dp" />
 
     </com.google.android.material.card.MaterialCardView>
-    ==
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cntOccupation"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginVertical="10dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="10dp"
         app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalRight"
+        app:layout_constraintStart_toStartOf="@id/guidelineVerticalLeft"
         app:layout_constraintTop_toBottomOf="@id/cntGender"
         app:strokeColor="#EEEEEE"
         app:strokeWidth="1dp">
