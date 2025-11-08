@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.AiFA" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- ✅ Light & dark mode support -->
+
+        <!-- Status bar color (top area) -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Navigation bar color (bottom area) -->
+        <item name="android:navigationBarColor">@color/white</item>
+
+        <!-- Remove default action bar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- App window background -->
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <style name="Theme.MyApp.Splash" parent="Theme.SplashScreen">
+        <!-- Your splash screen logo -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+
+        <!-- Background color -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+
+        <!-- Optional: keep the splash visible a bit longer -->
+        <item name="windowSplashScreenAnimationDuration">500</item>
+
+        <!-- Set the next theme once the splash ends -->
+        <item name="postSplashScreenTheme">@style/Theme.AiFA</item>
+    </style>
+</resources>

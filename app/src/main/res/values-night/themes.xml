@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.AiFA" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- ✅ Light & dark mode support -->
+
+        <!-- Status bar color (top area) -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Navigation bar color (bottom area) -->
+        <item name="android:navigationBarColor">@color/white</item>
+
+        <!-- Remove default action bar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- App window background -->
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+</resources>

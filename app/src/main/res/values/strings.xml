@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">AiFA</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="phone">Phone</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="forgot_password">forgot password</string>
+    <string name="register">Register</string>
+    <string name="name">Name</string>
+    <string name="age">Age</string>
+    <string name="job">Job Title</string>
+    <string name="gender">Gender</string>
+    <string name="dob">DOB</string>
+    <string name="nationality">Nationality</string>
+    <string name="add_members">Add Family Members</string>
+    <string name="relation">Relationship</string>
+    <string name="add_family_member_message">Hi, %1$s! Would you like to add your family members’ details to help categorize and view their transactions separately?</string>
+    <string name="add_family_member_title">Add Family Member</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+</resources>
