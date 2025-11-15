@@ -105,22 +105,34 @@
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/barChart"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_height="250dp" />
 
         <!-- Income / Expense Toggle -->
         <!-- Tab Buttons -->
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout2"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:padding="4dp"
-            app:tabIndicatorHeight="0dp"
-            android:background="@drawable/tab_layout_container"
-            app:tabMode="fixed"
-            app:tabGravity="fill">
-        </com.google.android.material.tabs.TabLayout>
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:layout_marginVertical="10dp"
+            android:background="@drawable/bg_tab_switch"
+            android:weightSum="2">
+            <TextView
+                android:id="@+id/btnIncome"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Income"
+                android:background="@drawable/bg_tab_income"
+                android:textColor="@color/white"
+                android:layout_weight="1"
+                android:gravity="center"/>
+            <TextView
+                android:id="@+id/btnExpense"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Expense"
+                android:layout_weight="1"
+                android:gravity="center"/>
+        </LinearLayout>
 
 
         <!-- RecyclerView -->
