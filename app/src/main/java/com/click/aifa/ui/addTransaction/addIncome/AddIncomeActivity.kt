@@ -13,7 +13,7 @@ class AddIncomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddincomeBinding
     private lateinit var viewModel: IncomeViewModel
-
+    private var isExpense = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -21,7 +21,7 @@ class AddIncomeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
-
+        isExpense = intent.getBooleanExtra("IS_EXPENSE", false)
         // Example Selected category:
         val selectedCategory = "Salary"
 
@@ -32,12 +32,13 @@ class AddIncomeActivity : AppCompatActivity() {
             val currentDate = System.currentTimeMillis()
 
             val income = TransactionEntity(
+                user = "sarath",
                 title = title,
                 amount = amount,
                 category = selectedCategory,
                 date = currentDate,
-                type = TransactionType.INCOME,
-                payeePayer ="Sarath"
+                type = if (isExpense) TransactionType.EXPENSE else TransactionType.INCOME,
+                payeePayer = "Sarath"
             )
 
             viewModel.insertIncome(income)

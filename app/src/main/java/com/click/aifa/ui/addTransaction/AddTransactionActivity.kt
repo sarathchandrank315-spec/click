@@ -26,7 +26,10 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 class AddTransactionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddBinding
-
+    val pickImage =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let { processImage(it) }
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -48,21 +51,23 @@ class AddTransactionActivity : AppCompatActivity() {
                 .setTitle("Scan Bill")
                 .setMessage("Do you want to scan bill?")
                 .setPositiveButton(getString(R.string.yes)) { dialog, _ -> callScanner(dialog) }
-                .setNegativeButton("Add Manuall") { dialog, _ -> dialog.dismiss() }
+                .setNegativeButton("Add Manually") { dialog, _ -> startAddExpenseActivity(dialog) }
                 .show()
         }
     }
 
+    private fun startAddExpenseActivity(dialog: DialogInterface?) {
+        dialog?.dismiss()
+        val intent = Intent(this, AddIncomeActivity::class.java)
+        intent.putExtra("IS_EXPENSE", true)
+        startActivity(intent)
+    }
+
     private fun callScanner(dialog: DialogInterface) {
         dialog.dismiss()
-        val pickImage =
-            registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-                uri?.let { processImage(it) }
-            }
-
-        fun openGallery() {
             pickImage.launch("image/*")
-        }
+
+
     }
 
     private fun processImage(uri: Uri) {

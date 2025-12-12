@@ -8,6 +8,7 @@ import com.click.aifa.data.enums.TransactionType
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val user:String,
     val title: String,
     val amount: Double,
     val category: String,

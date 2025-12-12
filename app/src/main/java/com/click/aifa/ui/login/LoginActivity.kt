@@ -2,6 +2,7 @@ package com.click.aifa.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.click.aifa.databinding.ActivityLoginBinding
@@ -26,18 +27,18 @@ class LoginActivity : AppCompatActivity() {
 
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
-//            when {
-//                email.isEmpty() || password.isEmpty() -> {
-//                    Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
-//                }
-//                email == "admin@example.com" && password == "123456" -> {
-//                    Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
-//                    // TODO: Navigate to home screen
-//                }
-//                else -> {
-//                    Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
-//                }
-//            }
+            when {
+                email.isEmpty() || password.isEmpty() -> {
+                    Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
+                }
+                email == "admin@example.com" && password == "123456" -> {
+                    Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show()
+                    // TODO: Navigate to home screen
+                }
+                else -> {
+                    Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         // Handle Register button
