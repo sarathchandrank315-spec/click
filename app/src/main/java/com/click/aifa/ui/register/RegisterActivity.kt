@@ -9,22 +9,34 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.click.aifa.R
+import com.click.aifa.data.User
+import com.click.aifa.data.user.AppDatabase
+import com.click.aifa.data.user.FamilyMemberEntity
+import com.click.aifa.data.user.UserDao
+import com.click.aifa.data.user.UserEntity
 import com.click.aifa.databinding.ActivityRegisterBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RegisterActivity : AppCompatActivity() {
 
+    private lateinit var dao: UserDao
+    private lateinit var db: AppDatabase
     private lateinit var binding: ActivityRegisterBinding
-    private val familyList = mutableListOf<FamilyMember>()
+    private val familyList = mutableListOf<FamilyMemberEntity>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val genderList = listOf("Male", "Female", "Other")
-
+        db = AppDatabase.getDatabase(this)
+        dao = db.userDao()
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_dropdown_item_1line,
@@ -38,14 +50,77 @@ class RegisterActivity : AppCompatActivity() {
         }
         // Example action
         binding.btnRegister.setOnClickListener {
-            val name = binding.etName.text
-            MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.add_family_member_title))
-                .setMessage(getString(R.string.add_family_member_message, name))
-                .setPositiveButton(getString(R.string.yes)) { dialog, _ -> registerFamily(dialog) }
-                .setNegativeButton(getString(R.string.no)) { dialog, _ -> goToDashBoard(dialog) }
-                .show()
+            if (familyList.isEmpty()) {
+                val name = binding.etName.text
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(getString(R.string.add_family_member_title))
+                    .setMessage(getString(R.string.add_family_member_message, name))
+                    .setPositiveButton(getString(R.string.yes)) { dialog, _ -> registerFamily(dialog) }
+                    .setNegativeButton(getString(R.string.no)) { dialog, _ -> goToDashBoard(dialog) }
+                    .show()
+            } else {
+                val name = binding.etName.text.toString()
+                val phone = binding.etPhone.text.toString()
+                val ageText = binding.etAge.text.toString()
+                val occupation = binding.etOccupation.text.toString()
+                val password = binding.etPassword.text.toString()
+                val confirmPassword = binding.etConfirmPassword.text.toString()
+// 🔴 Validate empty fields
+                when {
+                    name.isEmpty() -> {
+                        binding.etName.error = "Name is required"
+                        return@setOnClickListener
+                    }
+
+                    phone.isEmpty() -> {
+                        binding.etPhone.error = "Phone is required"
+                        return@setOnClickListener
+                    }
+
+                    ageText.isEmpty() -> {
+                        binding.etAge.error = "Age is required"
+                        return@setOnClickListener
+                    }
+
+                    occupation.isEmpty() -> {
+                        binding.etOccupation.error = "Occupation is required"
+                        return@setOnClickListener
+                    }
+
+                    password.isEmpty() -> {
+                        binding.etPassword.error = "Password is required"
+                        return@setOnClickListener
+                    }
+
+                    confirmPassword.isEmpty() -> {
+                        binding.etConfirmPassword.error = "Confirm password"
+                        return@setOnClickListener
+                    }
+
+                    password != confirmPassword -> {
+                        binding.etConfirmPassword.error = "Passwords do not match"
+                        return@setOnClickListener
+                    }
+                }
+
+                // ✔ Convert age safely
+                val age = ageText.toIntOrNull()
+                if (age == null) {
+                    binding.etAge.error = "Enter valid number"
+                    return@setOnClickListener
+                }
+                val user = UserEntity(
+                    age = age,
+                    name = name,
+                    phone = phone,
+                    password = password,
+                    occupation = occupation
+                )
+                insertUserToDatabase(user)
+            }
+
         }
+
     }
 
     private fun registerFamily(dialog: DialogInterface) {
@@ -127,13 +202,38 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         familyList.add(
-            FamilyMember(
+            FamilyMemberEntity(
                 name = name,
                 relation = relation,
                 age = age.toIntOrNull() ?: 0,
+                userId = 0,
                 occupation = occupation
             )
         )
     }
 
+    private fun insertUserToDatabase(newUser: UserEntity) {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            // Insert user first
+            val userId = dao.insertUser(newUser).toInt()
+
+            // Update family members userId
+            val updatedFamily = familyList.map {
+                it.copy(userId = userId)
+            }
+
+            dao.insertFamilyMembers(updatedFamily)
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    this@RegisterActivity,
+                    "User registered successfully!",
+                    Toast.LENGTH_SHORT
+                ).show()
+                finish()
+            }
+        }
+    }
 }

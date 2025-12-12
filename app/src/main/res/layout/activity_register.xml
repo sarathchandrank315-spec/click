@@ -41,7 +41,7 @@
         app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="@id/guidelineVerticalRight"
         app:layout_constraintStart_toStartOf="@id/guidelineVerticalLeft"
-        app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle"
+        app:layout_constraintTop_toBottomOf="@id/cntPhone"
         app:strokeColor="#EEEEEE"
         app:strokeWidth="1dp">
 
@@ -56,7 +56,31 @@
             android:padding="12dp" />
 
     </com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cntPhone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalRight"
+        app:layout_constraintStart_toStartOf="@id/guidelineVerticalLeft"
+        app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle"
+        app:strokeColor="#EEEEEE"
+        app:strokeWidth="1dp">
 
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:background="@android:color/transparent"
+            android:hint="Phone"
+            android:inputType="numberDecimal"
+            android:padding="12dp" />
+
+    </com.google.android.material.card.MaterialCardView>
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cntAge"
         android:layout_width="0dp"
@@ -78,7 +102,7 @@
             android:textColor="@color/black"
             android:background="@android:color/transparent"
             android:hint="@string/age"
-            android:inputType="textPassword"
+            android:inputType="number"
             android:padding="12dp" />
 
     </com.google.android.material.card.MaterialCardView>
