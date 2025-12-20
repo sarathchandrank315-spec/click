@@ -17,7 +17,6 @@ import com.click.aifa.databinding.ActivityAddBinding
 import com.click.aifa.databinding.TopbarLayoutBinding
 import com.click.aifa.ui.addTransaction.adapter.TransactionAdapter
 import com.click.aifa.ui.addTransaction.addIncome.AddIncomeActivity
-import com.click.aifa.util.Test
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -38,10 +37,9 @@ class AddTransactionActivity : AppCompatActivity() {
         setContentView(binding.root)
         customizeAppBar(binding.topBar)
         // RecyclerView setup
-        val transactions = Test.getSampleData()
 
         binding.recyclerTransactions.layoutManager = LinearLayoutManager(this)
-        binding.recyclerTransactions.adapter = TransactionAdapter(transactions)
+        binding.recyclerTransactions.adapter = TransactionAdapter()
         binding.btnAddIncome.setOnClickListener {
             val intent = Intent(this, AddIncomeActivity::class.java)
             startActivity(intent)

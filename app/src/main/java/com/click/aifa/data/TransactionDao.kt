@@ -14,4 +14,10 @@ interface TransactionDao {
 
     @Delete
     suspend fun deleteIncome(income: TransactionEntity)
+
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM transactions WHERE type = 'INCOME'")
+    fun getTotalIncome(): LiveData<Double>
+
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM transactions WHERE type = 'EXPENSE'")
+    fun getTotalExpense(): LiveData<Double>
 }

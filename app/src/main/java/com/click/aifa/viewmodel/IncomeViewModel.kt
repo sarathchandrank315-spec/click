@@ -13,12 +13,16 @@ class IncomeViewModel(application: Application) : AndroidViewModel(application) 
 
     private val repository: TransactionRepository
 
-    private val allIncomeList: LiveData<List<TransactionEntity>>
+    val allIncomeList: LiveData<List<TransactionEntity>>
+    val totalIncome: LiveData<Double>
+    val totalExpense: LiveData<Double>
 
     init {
         val dao = TransactionDatabase.getDatabase(application).incomeDao()
         repository = TransactionRepository(dao)
         allIncomeList = repository.allTransaction
+        totalIncome = repository.totalIncome
+        totalExpense = repository.totalExpense
     }
 
     fun insertIncome(transaction: TransactionEntity) {

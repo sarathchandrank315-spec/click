@@ -1,39 +1,63 @@
 package com.click.aifa.ui.addTransaction.adapter
+
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.click.aifa.data.TransactionEntity
+import com.click.aifa.data.enums.TransactionType
 import com.click.aifa.databinding.ItemTransactionBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-data class Transaction(
-    val title: String,
-    val date: String,
-    val amount: String,
-    val iconRes: Int,
-    val isIncome: Boolean
-)
-
-class TransactionAdapter(private val list: List<Transaction>) :
-    RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
+class TransactionAdapter :
+    ListAdapter<TransactionEntity, TransactionAdapter.TransactionViewHolder>(DiffCallback()) {
 
     inner class TransactionViewHolder(val binding: ItemTransactionBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
-        val binding = ItemTransactionBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemTransactionBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
         return TransactionViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = list.size
-
     override fun onBindViewHolder(holder: TransactionViewHolder, position: Int) {
-        val item = list[position]
+        val item = getItem(position)
+
         holder.binding.tvTitle.text = item.title
-        holder.binding.tvTime.text = item.date
-        holder.binding.tvAmount.text = item.amount
+        holder.binding.tvTime.text = formatDate(item.date)
+        holder.binding.tvAmount.text = item.amount.toString()
+        val color = if (item.type == TransactionType.INCOME)
+            android.R.color.holo_green_dark
+        else
+            android.R.color.holo_red_dark
+
         holder.binding.tvAmount.setTextColor(
-            holder.itemView.context.getColor(
-                if (item.isIncome) android.R.color.holo_green_dark else android.R.color.holo_red_dark
-            )
+            ContextCompat.getColor(holder.itemView.context, color)
         )
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<TransactionEntity>() {
+        override fun areItemsTheSame(
+            oldItem: TransactionEntity,
+            newItem: TransactionEntity
+        ): Boolean = oldItem.id == newItem.id
+
+        override fun areContentsTheSame(
+            oldItem: TransactionEntity,
+            newItem: TransactionEntity
+        ): Boolean = oldItem == newItem
+    }
+
+    private fun formatDate(timeInMillis: Long): String {
+        val sdf = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
+        return sdf.format(Date(timeInMillis))
     }
 }
