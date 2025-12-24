@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.click.aifa.R
 import com.click.aifa.databinding.ActivityHomeBinding
+import com.click.aifa.reminder.ReminderActivity
 import com.click.aifa.ui.addTransaction.AddTransactionActivity
 import com.click.aifa.ui.dashBoard.chatbot.ChatBotActivity
 import com.click.aifa.ui.dashBoard.fragments.HomeFragment
@@ -41,23 +42,27 @@ class HomeActivity : AppCompatActivity() {
             val intent = Intent(this, AddTransactionActivity::class.java)
             startActivity(intent)
         }
+        binding.topBar.btnNotification.setOnClickListener {
+            val intent = Intent(this, ReminderActivity::class.java)
+            startActivity(intent)
+        }
         loadFragments()
         // Bottom Nav item clicks
         binding.bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
                     showFragment(homeFragment)
-                    lastSelectedTab=R.id.nav_home
+                    lastSelectedTab = R.id.nav_home
                 }
 
                 R.id.nav_stats -> {
                     showFragment(statisticsFragment)
-                    lastSelectedTab=R.id.nav_stats
+                    lastSelectedTab = R.id.nav_stats
                 }
 
                 R.id.nav_profile -> {
                     showFragment(profileFragment)
-                    lastSelectedTab=R.id.nav_profile
+                    lastSelectedTab = R.id.nav_profile
                 }
 
                 R.id.nav_wallet -> openChat()

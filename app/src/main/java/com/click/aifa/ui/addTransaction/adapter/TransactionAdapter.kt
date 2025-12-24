@@ -33,7 +33,7 @@ class TransactionAdapter :
 
         holder.binding.tvTitle.text = item.title
         holder.binding.tvTime.text = formatDate(item.date)
-        holder.binding.tvAmount.text = item.amount.toString()
+        holder.binding.tvAmount.text = "₹ ${String.format("%.2f", item.amount)}"
         val color = if (item.type == TransactionType.INCOME)
             android.R.color.holo_green_dark
         else

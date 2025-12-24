@@ -1,5 +1,6 @@
 package com.click.aifa.ui.dashBoard.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +29,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("DefaultLocale")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -48,16 +50,16 @@ class HomeFragment : Fragment() {
             transactionAdapter.submitList(list)
         }
         incomeViewModel.totalIncome.observe(viewLifecycleOwner) {
-            binding.txtIncome.text = "₹ $it"
+            binding.txtIncome.text = "₹ ${String.format("%.2f", it)}"
         }
 
         incomeViewModel.totalExpense.observe(viewLifecycleOwner) {
-            binding.txtExpense.text = "₹ $it"
+            binding.txtExpense.text = "₹ ${String.format("%.2f", it)}"
         }
 
         incomeViewModel.totalIncome.observe(viewLifecycleOwner) { income ->
             incomeViewModel.totalExpense.observe(viewLifecycleOwner) { expense ->
-                binding.tvBalance.text = "₹ ${income - expense}"
+                binding.tvBalance.text = "₹ ${String.format("%.2f", income - expense)}"
             }
         }
 

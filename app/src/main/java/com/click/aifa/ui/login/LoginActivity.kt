@@ -10,6 +10,8 @@ import com.click.aifa.data.user.AppDatabase
 import com.click.aifa.data.user.UserDao
 import com.click.aifa.data.user.UserSession
 import com.click.aifa.databinding.ActivityLoginBinding
+import com.click.aifa.security.BiometricUtil
+import com.click.aifa.security.SecurePrefs
 import com.click.aifa.ui.dashBoard.HomeActivity
 import com.click.aifa.ui.register.RegisterActivity
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +31,18 @@ class LoginActivity : AppCompatActivity() {
         // Inflate layout using view binding
         installSplashScreen()
         binding = ActivityLoginBinding.inflate(layoutInflater)
+        // 🔁 Auto-login using biometric
+        if (SecurePrefs.isBiometricEnabled(this) &&
+            BiometricUtil.isAvailable(this)
+        ) {
+            BiometricUtil.authenticate(
+                this,
+                onSuccess = {
+                    autoLogin()
+                },
+                onError = {}
+            )
+        }
         setContentView(binding.root)
         db = AppDatabase.getDatabase(this)
         dao = db.userDao()
@@ -69,6 +83,11 @@ class LoginActivity : AppCompatActivity() {
                     // Load full user + family
                     lifecycleScope.launch(Dispatchers.IO) {
                         val fullUser = dao.getUserWithFamily(user.id)
+                        SecurePrefs.saveCredentials(this@LoginActivity, email, password)
+                        SecurePrefs.enableBiometric(
+                            this@LoginActivity,
+                            binding.cbBiometric.isChecked
+                        )
                         UserSession.login(fullUser!!)  // Save in session
 
                         withContext(Dispatchers.Main) {
@@ -77,6 +96,26 @@ class LoginActivity : AppCompatActivity() {
                         }
                     }
 
+                }
+
+            }
+        }
+    }
+
+    private fun autoLogin() {
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            val username = SecurePrefs.getUsername(this@LoginActivity)
+            val password = SecurePrefs.getPassword(this@LoginActivity)
+
+            if (username != null && password != null) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val user = dao.getUserByPhone(username)
+                    val fullUser = dao.getUserWithFamily(user?.id!!)
+                    UserSession.login(fullUser!!)  // Save in session
+                    // Use credentials for API session if needed
+                    startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                    finish()
                 }
             }
         }

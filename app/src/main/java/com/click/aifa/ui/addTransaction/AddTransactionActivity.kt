@@ -11,12 +11,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.click.aifa.R
 import com.click.aifa.databinding.ActivityAddBinding
 import com.click.aifa.databinding.TopbarLayoutBinding
 import com.click.aifa.ui.addTransaction.adapter.TransactionAdapter
 import com.click.aifa.ui.addTransaction.addIncome.AddIncomeActivity
+import com.click.aifa.viewmodel.IncomeViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -25,6 +27,8 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 class AddTransactionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddBinding
+    private lateinit var incomeViewModel: IncomeViewModel
+    private lateinit var transactionAdapter: TransactionAdapter
     val pickImage =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let { processImage(it) }
@@ -37,9 +41,17 @@ class AddTransactionActivity : AppCompatActivity() {
         setContentView(binding.root)
         customizeAppBar(binding.topBar)
         // RecyclerView setup
-
+        // 1️⃣ Adapter
+        transactionAdapter = TransactionAdapter()
         binding.recyclerTransactions.layoutManager = LinearLayoutManager(this)
-        binding.recyclerTransactions.adapter = TransactionAdapter()
+        binding.recyclerTransactions.adapter =transactionAdapter
+        // 3️⃣ ViewModel
+        incomeViewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
+
+        // 4️⃣ Observe LiveData (Realtime updates)
+        incomeViewModel.allIncomeList.observe(this) { list ->
+            transactionAdapter.submitList(list)
+        }
         binding.btnAddIncome.setOnClickListener {
             val intent = Intent(this, AddIncomeActivity::class.java)
             startActivity(intent)
