@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <!-- Top Bar -->
@@ -128,42 +129,20 @@
 
             <!-- Category -->
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
                 android:text="Category"
-                android:textColor="#000"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
+                tools:listitem="@layout/item_category_chip"
+                android:clipToPadding="false"/>
 
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Salary"
-                    android:textColor="#FFFFFF"
-                    app:chipBackgroundColor="@color/purple_500" />
-
-                <com.google.android.material.chip.Chip
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Discount"
-                    android:textColor="#000"
-                    app:chipBackgroundColor="#EFEFEF" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/addCategory"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="+" />
-            </LinearLayout>
 
             <!-- Add Income Button -->
             <Button

@@ -23,6 +23,8 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.google.firebase.ai.type.imagenGenerationConfig
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Calendar
@@ -55,8 +57,35 @@ class StatisticsFragment : Fragment() {
         transactionAdapter = TransactionAdapter()
         binding.recyclerTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerTransactions.adapter = transactionAdapter
+        binding.spYear.setText(selectedYear.toString())
+        binding.spMonth.setText(monthName(selectedMonth))
+        years.add(selectedYear)
+        months.add(monthName(selectedMonth))
+        binding.spYear.setAdapter(
+            ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                years
+            )
+        )
+        binding.spYear.keyListener = null      // disable typing
+        binding.spYear.setOnClickListener {
+            binding.spYear.showDropDown()       // force show dropdown
+        }
+        binding.spMonth.setAdapter(
+            ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                months
+            )
+        )
+        binding.spMonth.keyListener = null      // disable typing
+        binding.spMonth.setOnClickListener {
+            binding.spMonth.showDropDown()       // force show dropdown
+        }
         incomeViewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
         incomeViewModel.allIncomeList.observe(viewLifecycleOwner) { list ->
+            if (list.isEmpty()) return@observe
             transactionList = list
             val firstEntry = list.minByOrNull { it.date }!!
             val (startY, startM) = getYearMonth(firstEntry.date)
@@ -100,7 +129,7 @@ class StatisticsFragment : Fragment() {
                 btnIncome.setBackgroundResource(R.drawable.bg_tab_income)
                 btnExpense.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 btnExpense.background = null
-                selectedTType= TransactionType.INCOME
+                selectedTType = TransactionType.INCOME
                 getWeeklySummaryForMonth(transactionList, selectedYear, selectedMonth)
             }
             btnExpense.setOnClickListener {
@@ -108,7 +137,7 @@ class StatisticsFragment : Fragment() {
                 btnExpense.setBackgroundResource(R.drawable.bg_tab_expense)
                 btnIncome.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 btnIncome.background = null
-                selectedTType= TransactionType.EXPENSE
+                selectedTType = TransactionType.EXPENSE
                 getWeeklySummaryForMonth(transactionList, selectedYear, selectedMonth)
             }
         }
@@ -137,12 +166,16 @@ class StatisticsFragment : Fragment() {
         val expenseSet = BarDataSet(expenseEntries, "Expenses").apply {
             color = Color.parseColor("#FF7043")
         }
-
+        val groupSpace = 0.4f
+        val barSpace = 0.02f
+        val barWidth = 0.3f
+        val startX = 1f
+        val groupCount = 4
         val data = BarData(incomeSet, expenseSet)
-        data.barWidth = 0.3f
+        data.barWidth = barWidth
 
         barChart.data = data
-        barChart.groupBars(0f, 0.4f, 0.02f)
+        barChart.groupBars(startX, groupSpace, barSpace)
         barChart.description.isEnabled = false
         barChart.axisRight.isEnabled = false
         barChart.legend.isEnabled = false
@@ -150,13 +183,18 @@ class StatisticsFragment : Fragment() {
 
         val xAxis = barChart.xAxis
         xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.axisMinimum = startX - 0.5f
+// 👉 END RANGE
+        xAxis.axisMaximum =
+            startX + barChart.barData.getGroupWidth(groupSpace, barSpace) * groupCount
         xAxis.setDrawGridLines(false)
         xAxis.granularity = 1f
-        xAxis.valueFormatter = com.github.mikephil.charting.formatter.IndexAxisValueFormatter(
-            listOf("Week 1", "Week 2", "Week 3", "Week 4")
+        xAxis.setCenterAxisLabels(true)
+        xAxis.valueFormatter = IndexAxisValueFormatter(
+            listOf("", "Week 1", "Week 2", "Week 3", "Week 4")
         )
 
-        barChart.axisLeft.axisMinimum = 0f
+        barChart.axisLeft.axisMinimum = 0.5f
         barChart.invalidate()
     }
 
@@ -200,6 +238,18 @@ class StatisticsFragment : Fragment() {
     ) {
 
         val monthData = filterByMonth(list, year, month)
+        monthData.let { transactions ->
+            val income = transactions
+                .filter { it.type == TransactionType.INCOME }
+                .sumOf { it.amount }
+
+            val expense = transactions
+                .filter { it.type == TransactionType.EXPENSE }
+                .sumOf { it.amount }
+            binding.tvTotalIncome.text = "₹ ${String.format("%.2f", income)}"
+            binding.tvTotalExpense.text = "₹ ${String.format("%.2f", expense)}"
+        }
+
         transactionAdapter.submitList(monthData.filter { it.type == selectedTType })
         val data = monthData
             .groupBy { getWeekOfMonth(it.date) }
@@ -253,7 +303,7 @@ class StatisticsFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun monthName(month: Int): String =
-        Month.of(month).getDisplayName(TextStyle.SHORT, Locale.getDefault())
+        Month.of(month).name
 
 }
 

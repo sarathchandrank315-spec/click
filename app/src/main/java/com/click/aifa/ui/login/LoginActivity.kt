@@ -46,6 +46,10 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
         db = AppDatabase.getDatabase(this)
         dao = db.userDao()
+        SecurePrefs.getUsername(this@LoginActivity)?.let {
+            binding.etPhone.setText(it)
+        }
+
         // Handle Login button
         binding.btnLogin.setOnClickListener {
             val email = binding.etPhone.text.toString().trim()
