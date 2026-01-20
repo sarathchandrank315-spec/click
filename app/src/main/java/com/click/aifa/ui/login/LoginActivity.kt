@@ -51,6 +51,10 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Handle Login button
+        binding.btnLogin.setOnLongClickListener {
+            autoLogin()
+            true
+        }
         binding.btnLogin.setOnClickListener {
             val email = binding.etPhone.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()

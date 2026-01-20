@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.AiFA" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.AiFA" parent="Theme.Material3.Light.NoActionBar">
         <!-- ✅ Light & dark mode support -->
 
         <!-- Status bar color (top area) -->

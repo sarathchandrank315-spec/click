@@ -63,7 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:hint="Gender"
+            android:hint="Relation"
             android:padding="12dp"
             android:inputType="none"
             android:background="@android:color/transparent" />

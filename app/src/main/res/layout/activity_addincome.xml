@@ -28,6 +28,7 @@
             android:paddingHorizontal="20dp">
             <!-- Calendar -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/calanderBg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -46,6 +47,7 @@
 
             <!-- Income Title -->
             <TextView
+                android:id="@+id/txtIncome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="25dp"
@@ -100,6 +102,7 @@
                     android:padding="10dp" />
             </com.google.android.material.textfield.TextInputLayout>
             <TextView
+                android:id="@+id/txtEarned"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="25dp"
@@ -118,7 +121,7 @@
                 app:boxCornerRadiusBottomStart="14dp"
                 app:boxCornerRadiusTopEnd="14dp"
                 app:boxCornerRadiusTopStart="14dp"
-                android:hint="Select Earner">
+                android:hint="Select Person">
 
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/editEarner"
