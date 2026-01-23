@@ -139,14 +139,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvCategory"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/categoryLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:listitem="@layout/item_category_chip"
-                android:clipToPadding="false"/>
+                android:layout_marginTop="8dp"
+                app:endIconMode="dropdown_menu"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusBottomEnd="14dp"
+                app:boxCornerRadiusBottomStart="14dp"
+                app:boxCornerRadiusTopEnd="14dp"
+                app:boxCornerRadiusTopStart="14dp"
+                android:hint="Select Category">
 
-
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/editCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
             <!-- Add Income Button -->
             <Button
                 android:id="@+id/btnAddIncome"

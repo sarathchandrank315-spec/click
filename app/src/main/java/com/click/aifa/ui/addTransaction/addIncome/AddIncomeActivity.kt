@@ -32,6 +32,16 @@ class AddIncomeActivity : AppCompatActivity() {
     private lateinit var viewModel: IncomeViewModel
     private var currentDate = Calendar.getInstance().timeInMillis
     private var isExpense = false
+    val savedCategories = CategoryPreference.getCategories(this)
+    var categoryList = if (savedCategories.isEmpty()) {
+        mutableListOf(
+            Category(1, "Salary", true),
+            Category(2, "Discount"),
+            Category(3, "Add New")
+        )
+    } else {
+        savedCategories
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,41 +60,30 @@ class AddIncomeActivity : AppCompatActivity() {
         }
 
 
-
-        val adapter = ArrayAdapter(
+        val familyAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_dropdown_item_1line,
             familyList
         )
 
-        val savedCategories = CategoryPreference.getCategories(this)
 
-        val categoryList = if (savedCategories.isEmpty()) {
-            mutableListOf(
-                Category(1, "Salary", true),
-                Category(2, "Discount"),
-                Category(3, "+")
-            )
-        } else {
-            savedCategories
+        val categoryAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            categoryList
+        )
+        binding.editCategory.setAdapter(categoryAdapter)
+        binding.editCategory.keyListener = null      // disable typing
+        binding.editCategory.setOnClickListener {
+            binding.editCategory.showDropDown()       // force show dropdown
         }
-        val spanCount = 3
-        val layoutManager = GridLayoutManager(this, spanCount)
-
-        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return if (categoryList[position].name == "+") spanCount else 1
+        binding.editCategory.setOnItemClickListener { parent, view, position, id ->
+            if (position == categoryList.lastIndex) {
+                showAddCategoryDialog(categoryList)
             }
         }
 
-        binding.rvCategory.layoutManager = layoutManager
-
-
-        binding.rvCategory.adapter = CategoryAdapter(categoryList) {
-            showAddCategoryDialog(categoryList)
-        }
-
-        binding.editEarner.setAdapter(adapter)
+        binding.editEarner.setAdapter(familyAdapter)
         binding.editEarner.keyListener = null      // disable typing
         binding.editEarner.setOnClickListener {
             binding.editEarner.showDropDown()       // force show dropdown
@@ -127,33 +126,26 @@ class AddIncomeActivity : AppCompatActivity() {
             finish()
         }
         topBar.btnNotification.visibility = View.INVISIBLE
-        topBar.tvTitle.text = if (isExpense)"Expense" else "Income"
+        topBar.tvTitle.text = if (isExpense) "Expense" else "Income"
     }
 
     private fun changeCategory() {
-       if (isExpense){
-           binding.btnAddIncome.setText("Add Expense")
-           binding.btnAddIncome.setBackgroundColor(ContextCompat.getColor(this,R.color.color_secondary))
-           binding.txtIncome.setText("Expense Title")
-           binding.txtEarned.setText("Spend For")
-           binding.calanderBg.setBackgroundColor(getColor(
-               R.color.color_secondary_light
+        if (isExpense) {
+            binding.btnAddIncome.setText("Add Expense")
+            binding.btnAddIncome.setBackgroundColor(
+                ContextCompat.getColor(
+                    this,
+                    R.color.color_secondary
+                )
+            )
+            binding.txtIncome.setText("Expense Title")
+            binding.txtEarned.setText("Spend For")
+            binding.calanderBg.setBackgroundColor(
+                getColor(
+                    R.color.color_secondary_light
 
-           ))
-       }
-    }
-
-    class GridSpacingItemDecoration(
-        private val spacing: Int
-    ) : RecyclerView.ItemDecoration() {
-
-        override fun getItemOffsets(
-            outRect: Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
-            outRect.set(spacing, spacing, spacing, spacing)
+                )
+            )
         }
     }
 
@@ -173,7 +165,13 @@ class AddIncomeActivity : AppCompatActivity() {
                     )
 
                     CategoryPreference.saveCategories(this, categoryList)
-                    binding.rvCategory.adapter?.notifyDataSetChanged()
+
+                    val categoryAdapter = ArrayAdapter(
+                        this,
+                        android.R.layout.simple_dropdown_item_1line,
+                        categoryList
+                    )
+                    binding.editCategory.setAdapter(categoryAdapter)
 
                 }
             }
