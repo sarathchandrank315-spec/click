@@ -41,7 +41,7 @@ class StatisticsFragment : Fragment() {
     val months = mutableListOf<String>()
 
 
-    private lateinit var transactionList: List<TransactionEntity>
+    private  var transactionList: List<TransactionEntity> =  mutableListOf<TransactionEntity>()
     var selectedYear = calendar.get(Calendar.YEAR)
     var selectedMonth = calendar.get(Calendar.MONTH) + 1
     var startYear = calendar.get(Calendar.YEAR)

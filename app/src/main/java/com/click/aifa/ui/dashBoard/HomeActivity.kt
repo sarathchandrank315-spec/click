@@ -52,16 +52,19 @@ class HomeActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_home -> {
                     showFragment(homeFragment)
+                    customizeTopBar("HOME")
                     lastSelectedTab = R.id.nav_home
                 }
 
                 R.id.nav_stats -> {
                     showFragment(statisticsFragment)
+                    customizeTopBar("STATISTICS")
                     lastSelectedTab = R.id.nav_stats
                 }
 
                 R.id.nav_profile -> {
                     showFragment(profileFragment)
+                    customizeTopBar("PROFILE")
                     lastSelectedTab = R.id.nav_profile
                 }
 
@@ -69,6 +72,10 @@ class HomeActivity : AppCompatActivity() {
             }
             true
         }
+    }
+
+    private fun customizeTopBar(string: String) {
+        binding.topBar.tvTitle.text = string
     }
 
     private fun openChat() {

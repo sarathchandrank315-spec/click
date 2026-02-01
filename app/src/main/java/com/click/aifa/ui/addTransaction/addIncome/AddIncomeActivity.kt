@@ -1,7 +1,6 @@
 package com.click.aifa.ui.addTransaction.addIncome
 
 
-import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.View
@@ -13,8 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.click.aifa.R
 import com.click.aifa.data.Category
 import com.click.aifa.data.TransactionEntity
@@ -22,7 +19,6 @@ import com.click.aifa.data.enums.TransactionType
 import com.click.aifa.data.user.UserSession
 import com.click.aifa.databinding.ActivityAddincomeBinding
 import com.click.aifa.databinding.TopbarLayoutBinding
-import com.click.aifa.ui.adapter.CategoryAdapter
 import com.click.aifa.ui.addTransaction.CategoryPreference
 import com.click.aifa.viewmodel.IncomeViewModel
 
@@ -32,16 +28,14 @@ class AddIncomeActivity : AppCompatActivity() {
     private lateinit var viewModel: IncomeViewModel
     private var currentDate = Calendar.getInstance().timeInMillis
     private var isExpense = false
-    val savedCategories = CategoryPreference.getCategories(this)
-    var categoryList = if (savedCategories.isEmpty()) {
+
+    var categoryList =
         mutableListOf(
             Category(1, "Salary", true),
             Category(2, "Discount"),
             Category(3, "Add New")
         )
-    } else {
-        savedCategories
-    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,6 +43,10 @@ class AddIncomeActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
         isExpense = intent.getBooleanExtra("IS_EXPENSE", false)
+        val savedCategories = CategoryPreference.getCategories(this)
+        if (savedCategories.isNotEmpty()) {
+            categoryList = savedCategories
+        }
         changeCategory()
         customizeAppBar(binding.topBar)
         val familyList: MutableList<String> = mutableListOf()
@@ -131,15 +129,15 @@ class AddIncomeActivity : AppCompatActivity() {
 
     private fun changeCategory() {
         if (isExpense) {
-            binding.btnAddIncome.setText("Add Expense")
+            binding.btnAddIncome.text = "Add Expense"
             binding.btnAddIncome.setBackgroundColor(
                 ContextCompat.getColor(
                     this,
                     R.color.color_secondary
                 )
             )
-            binding.txtIncome.setText("Expense Title")
-            binding.txtEarned.setText("Spend For")
+            binding.txtIncome.text = "Expense Title"
+            binding.txtEarned.text = "Spend For"
             binding.calanderBg.setBackgroundColor(
                 getColor(
                     R.color.color_secondary_light

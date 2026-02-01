@@ -22,7 +22,10 @@ class ChatBotActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = LayoutChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        binding.topBar.tvTitle.text = "AIFA"
+        binding.topBar.leftButton.setOnClickListener {
+            finish()
+        }
         setupRecyclerView()
         setupSendButton()
     }
@@ -33,6 +36,7 @@ class ChatBotActivity : AppCompatActivity() {
     }
 
     private fun setupSendButton() {
+        chatAdapter.addMessage(ChatMessage("Hi, How can i help you?", false))
         binding.sendButton.setOnClickListener {
             val message = binding.messageInput.text.toString().trim()
             if (message.isNotEmpty()) {
@@ -42,7 +46,7 @@ class ChatBotActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val response = repository.getFinanceResponse(message)
                     Log.d("TAG", "setupSendButton: $response")
-                    chatAdapter.addMessage(ChatMessage(response.replace("*",""), false))
+                    chatAdapter.addMessage(ChatMessage(response.replace("*", ""), false))
                     binding.chatRecyclerView.smoothScrollToPosition(chatAdapter.itemCount - 1)
                 }
             }
