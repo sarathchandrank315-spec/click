@@ -11,7 +11,7 @@ import com.click.aifa.utils.Constants
 
 
 @TypeConverters(TransactionTypeConverter::class)
-@Database(entities = [TransactionEntity::class], version = 1, exportSchema = false)
+@Database(entities = [TransactionEntity::class], version = 1, exportSchema = true)
 abstract class TransactionDatabase : RoomDatabase() {
 
     abstract fun incomeDao(): TransactionDao

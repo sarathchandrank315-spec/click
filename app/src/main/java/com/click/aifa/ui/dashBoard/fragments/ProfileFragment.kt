@@ -1,6 +1,7 @@
 package com.click.aifa.ui.dashBoard.fragments
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,8 @@ import com.click.aifa.databinding.FragmentHomeBinding
 import com.click.aifa.databinding.FragmentProfileBinding
 import com.click.aifa.security.SecurePrefs
 import com.click.aifa.ui.adapter.FamilyAdapter
+import com.click.aifa.ui.dashBoard.HomeActivity
+import com.click.aifa.ui.login.LoginActivity
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
@@ -68,7 +71,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         binding.btnAddFamily.setOnClickListener {
             showFamilyDialog(null)
         }
-
+        binding.btnSignOut.setOnClickListener {
+            startActivity(Intent(requireContext(), LoginActivity::class.java))
+            requireActivity().finishAffinity()
+        }
         binding.btnEditUser.setOnClickListener {
             showEditUserDialog(user!!)
         }

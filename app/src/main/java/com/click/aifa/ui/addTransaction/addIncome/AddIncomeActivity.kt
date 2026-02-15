@@ -68,7 +68,7 @@ class AddIncomeActivity : AppCompatActivity() {
         val categoryAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_dropdown_item_1line,
-            categoryList
+            categoryList.map { it.name }
         )
         binding.editCategory.setAdapter(categoryAdapter)
         binding.editCategory.keyListener = null      // disable typing

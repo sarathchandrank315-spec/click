@@ -67,6 +67,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:visibility="gone"
                     android:text="Edit Profile" />
 
             </LinearLayout>
@@ -102,6 +103,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAddFamily"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -152,6 +154,11 @@
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSignOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Sign Out" />
     </LinearLayout>
 </ScrollView>

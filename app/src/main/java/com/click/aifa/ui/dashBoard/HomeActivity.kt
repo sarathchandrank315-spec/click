@@ -3,6 +3,7 @@ package com.click.aifa.ui.dashBoard
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -31,6 +32,7 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        customizeTopBar("HOME")
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout) { view, insets ->
             val statusBar = insets.getInsets(WindowInsetsCompat.Type.statusBars())
@@ -76,6 +78,7 @@ class HomeActivity : AppCompatActivity() {
 
     private fun customizeTopBar(string: String) {
         binding.topBar.tvTitle.text = string
+        binding.topBar.leftButton.visibility= View.GONE
     }
 
     private fun openChat() {
