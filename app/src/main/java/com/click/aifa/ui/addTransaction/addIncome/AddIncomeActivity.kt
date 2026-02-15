@@ -43,6 +43,29 @@ class AddIncomeActivity : AppCompatActivity() {
         setContentView(binding.root)
         viewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
         isExpense = intent.getBooleanExtra("IS_EXPENSE", false)
+        val amount = intent.getStringExtra("AMOUNT")
+        val date = intent.getStringExtra("DATE")
+        val time = intent.getStringExtra("TIME")
+        val category = intent.getStringExtra("CATEGORY")
+        amount?.let {
+            binding.editIncome.setText(it)
+        }
+        category?.let {
+            binding.editCategory.setText(it)
+            binding.editIncomeTitle.setText(it)
+        }
+        date?.let {
+            val parts = it.split("/")
+            val day = parts[0].toInt()
+            val month = parts[1].toInt() - 1   // 🔥 subtract 1
+            val year = parts[2].toInt()
+
+            val calendar = Calendar.getInstance()
+            calendar.set(year, month, day, 0, 0, 0)
+
+            currentDate = calendar.timeInMillis
+            binding.calendarView.date=currentDate
+        }
         val savedCategories = CategoryPreference.getCategories(this)
         if (savedCategories.isNotEmpty()) {
             categoryList = savedCategories
@@ -167,7 +190,7 @@ class AddIncomeActivity : AppCompatActivity() {
                     val categoryAdapter = ArrayAdapter(
                         this,
                         android.R.layout.simple_dropdown_item_1line,
-                        categoryList
+                        categoryList.map { it.name }
                     )
                     binding.editCategory.setAdapter(categoryAdapter)
 

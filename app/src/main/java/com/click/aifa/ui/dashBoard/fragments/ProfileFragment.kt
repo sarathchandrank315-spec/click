@@ -56,8 +56,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // ---------- FAMILY LIST ----------
+        UserSession.currentUser?.familyMembers?.let {
+            familyList.addAll(it)
+        }
 
-        familyList.addAll(UserSession.currentUser?.familyMembers!!)
         adapter = FamilyAdapter(familyList) {
             showFamilyDialog(it)
         }

@@ -1,5 +1,7 @@
 package com.click.aifa.ui.addTransaction
 
+import android.Manifest
+import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
@@ -33,6 +35,14 @@ class AddTransactionActivity : AppCompatActivity() {
     private lateinit var incomeViewModel: IncomeViewModel
     private lateinit var transactionAdapter: TransactionAdapter
     private lateinit var cameraImageUri: Uri
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                showImagePickerDialog()
+            } else {
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -64,6 +74,7 @@ class AddTransactionActivity : AppCompatActivity() {
         incomeViewModel.allIncomeList.observe(this) { list ->
             transactionAdapter.submitList(list)
         }
+
         binding.btnAddIncome.setOnClickListener {
             val intent = Intent(this, AddIncomeActivity::class.java)
             startActivity(intent)
@@ -73,21 +84,38 @@ class AddTransactionActivity : AppCompatActivity() {
                 .setTitle("Scan Bill")
                 .setMessage("Do you want to scan bill?")
                 .setPositiveButton(getString(R.string.yes)) { dialog, _ -> callScanner(dialog) }
-                .setNegativeButton("Add Manually") { dialog, _ -> startAddExpenseActivity(dialog) }
+                .setNegativeButton("Add Manually") { dialog, _ -> startAddExpenseActivity(
+                   dialog= dialog
+                ) }
                 .show()
         }
     }
 
-    private fun startAddExpenseActivity(dialog: DialogInterface?) {
+    private fun startAddExpenseActivity(
+        dialog: DialogInterface?,
+        amount: String? = null,
+        date1: String? = null,
+        time1: String? = null,
+        category1: String? = null
+    ) {
         dialog?.dismiss()
+
         val intent = Intent(this, AddIncomeActivity::class.java)
+
         intent.putExtra("IS_EXPENSE", true)
+        intent.putExtra("AMOUNT", amount)
+        intent.putExtra("DATE", date1)
+        intent.putExtra("TIME", time1)
+        intent.putExtra("CATEGORY", category1)
+
         startActivity(intent)
     }
 
+
     private fun callScanner(dialog: DialogInterface) {
         dialog.dismiss()
-        showImagePickerDialog()
+        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+
 
 
     }
@@ -137,11 +165,7 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     fun extractDate(text: String): String? {
-        val regex = Regex(
-            "(\\d{1,2}[\\/\\-]\\d{1,2}[\\/\\-]\\d{2,4})|" +
-                    "(\\d{4}[\\/\\-]\\d{1,2}[\\/\\-]\\d{1,2})|" +
-                    "(\\d{1,2}\\s*[A-Za-z]{3,9}\\s*\\d{2,4})"
-        )
+        val regex = Regex("\\b\\d{2}/\\d{2}/\\d{4}\\b")
         return regex.find(text)?.value
     }
 
@@ -165,6 +189,11 @@ class AddTransactionActivity : AppCompatActivity() {
             text.contains("restaurant", true) ||
                     text.contains("food", true) -> "Food & Dining"
 
+            text.contains("WEDDINGS", true) ||
+                    text.contains("SAREE", true)||
+                    text.contains("COTTON", true)||
+                    text.contains("MUNDU", true) -> "Shopping"
+
             else -> "Unknown"
         }
     }
@@ -173,16 +202,26 @@ class AddTransactionActivity : AppCompatActivity() {
         val patterns = listOf(
             "total[:\\s]*([0-9]+\\.?[0-9]*)",
             "amount payable[:\\s]*([0-9]+\\.?[0-9]*)",
-            "grand total[:\\s]*([0-9]+\\.?[0-9]*)",
-            "rs\\.\\s*([0-9]+\\.?[0-9]*)"
+            "MRP TOTAL \\s*([0-9]+\\.?[0-9]*)",
+            "rs\\.\\s*([0-9]+\\.?[0-9]*)",
+            "grand total[:\\s]*([0-9]+\\.?[0-9]*)"
         )
-
+        Log.d("TAG", "extractTotalAmount::text--$text ")
         for (pattern in patterns) {
+            Log.d("TAG", "extractTotalAmount:$pattern ")
             val regex = Regex(pattern, RegexOption.IGNORE_CASE)
             val match = regex.find(text)
             if (match != null) return match.groupValues[1]
         }
-        return null
+        // 🔹 Step 2: If no pattern matched, find all numbers
+        val numberRegex = Regex("\\d+\\.?\\d*")
+        val numbers = numberRegex.findAll(text)
+            .map { it.value.toDoubleOrNull() }
+            .filterNotNull()
+            .toList()
+
+        // 🔹 Step 3: Return largest number if exists
+        return numbers.maxOrNull()?.toString()
     }
 
     fun extractDetails(text: String) {
@@ -199,6 +238,7 @@ class AddTransactionActivity : AppCompatActivity() {
         Category: $category
     """.trimIndent()
         )
+        startAddExpenseActivity(null,amount,date,time,category)
     }
 
 
