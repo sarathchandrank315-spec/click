@@ -5,11 +5,11 @@ import com.click.aifa.data.Category
 import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 
-object CategoryPreference {
+object ExpenseCategoryPreference {
 
-    private const val PREF_NAME = "category_pref"
-    private const val KEY_CATEGORIES = "categories"
-    private const val KEY_SELECTED = "selected_category"
+    private const val PREF_NAME = "expense_category_pref"
+    private const val KEY_CATEGORIES = "expense_categories"
+    private const val KEY_SELECTED = "expense_selected_category"
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)

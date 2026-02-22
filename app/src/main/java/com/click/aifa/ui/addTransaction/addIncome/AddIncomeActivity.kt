@@ -19,7 +19,8 @@ import com.click.aifa.data.enums.TransactionType
 import com.click.aifa.data.user.UserSession
 import com.click.aifa.databinding.ActivityAddincomeBinding
 import com.click.aifa.databinding.TopbarLayoutBinding
-import com.click.aifa.ui.addTransaction.CategoryPreference
+import com.click.aifa.ui.addTransaction.ExpenseCategoryPreference
+import com.click.aifa.ui.addTransaction.IncomeCategoryPreference
 import com.click.aifa.viewmodel.IncomeViewModel
 
 class AddIncomeActivity : AppCompatActivity() {
@@ -29,10 +30,16 @@ class AddIncomeActivity : AppCompatActivity() {
     private var currentDate = Calendar.getInstance().timeInMillis
     private var isExpense = false
 
-    var categoryList =
+    var incomeCategoryList =
         mutableListOf(
             Category(1, "Salary", true),
             Category(2, "Discount"),
+            Category(3, "Add New")
+        )
+    var expenseCategoryList =
+        mutableListOf(
+            Category(1, "shopping", true),
+            Category(2, "Bill"),
             Category(3, "Add New")
         )
 
@@ -45,8 +52,9 @@ class AddIncomeActivity : AppCompatActivity() {
         isExpense = intent.getBooleanExtra("IS_EXPENSE", false)
         val amount = intent.getStringExtra("AMOUNT")
         val date = intent.getStringExtra("DATE")
-        val time = intent.getStringExtra("TIME")
+        intent.getStringExtra("TIME")
         val category = intent.getStringExtra("CATEGORY")
+        binding.calendarView.maxDate = System.currentTimeMillis()
         amount?.let {
             binding.editIncome.setText(it)
         }
@@ -64,12 +72,17 @@ class AddIncomeActivity : AppCompatActivity() {
             calendar.set(year, month, day, 0, 0, 0)
 
             currentDate = calendar.timeInMillis
-            binding.calendarView.date=currentDate
+            binding.calendarView.date = currentDate
         }
-        val savedCategories = CategoryPreference.getCategories(this)
+        val savedCategories = IncomeCategoryPreference.getCategories(this)
         if (savedCategories.isNotEmpty()) {
-            categoryList = savedCategories
+            incomeCategoryList = savedCategories
         }
+        val saved = ExpenseCategoryPreference.getCategories(this)
+        if (saved.isNotEmpty()) {
+            expenseCategoryList = saved
+        }
+
         changeCategory()
         customizeAppBar(binding.topBar)
         val familyList: MutableList<String> = mutableListOf()
@@ -88,19 +101,36 @@ class AddIncomeActivity : AppCompatActivity() {
         )
 
 
-        val categoryAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line,
-            categoryList.map { it.name }
-        )
+        val categoryAdapter = if (isExpense) {
+            binding.editCategory.setText(expenseCategoryList.first().name)
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                expenseCategoryList.map { it.name }
+            )
+        } else {
+            binding.editCategory.setText(incomeCategoryList.first().name)
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                incomeCategoryList.map { it.name })
+
+        }
+        binding.editEarner.setText(familyList.first().toString())
         binding.editCategory.setAdapter(categoryAdapter)
         binding.editCategory.keyListener = null      // disable typing
         binding.editCategory.setOnClickListener {
             binding.editCategory.showDropDown()       // force show dropdown
         }
         binding.editCategory.setOnItemClickListener { parent, view, position, id ->
-            if (position == categoryList.lastIndex) {
-                showAddCategoryDialog(categoryList)
+            if (isExpense) {
+                if (position == expenseCategoryList.lastIndex) {
+                    showAddCategoryDialog(expenseCategoryList)
+                }
+            } else {
+                if (position == incomeCategoryList.lastIndex) {
+                    showAddCategoryDialog(incomeCategoryList)
+                }
             }
         }
 
@@ -121,10 +151,10 @@ class AddIncomeActivity : AppCompatActivity() {
             val payeePayer = binding.editEarner.text.toString()
 
             val income = TransactionEntity(
-                user = UserSession.currentUser?.user.toString(),
+                user = UserSession.currentUser?.user?.name.toString(),
                 title = title,
                 amount = amount,
-                category = categoryList.first { it.isSelected }.toString(),
+                category = binding.editCategory.text.toString(),
                 date = currentDate,
                 type = if (isExpense) TransactionType.EXPENSE else TransactionType.INCOME,
                 payeePayer = payeePayer
@@ -159,6 +189,7 @@ class AddIncomeActivity : AppCompatActivity() {
                     R.color.color_secondary
                 )
             )
+            binding.editIncomeTitle.hint = "Grocery"
             binding.txtIncome.text = "Expense Title"
             binding.txtEarned.text = "Spend For"
             binding.calanderBg.setBackgroundColor(
@@ -167,6 +198,8 @@ class AddIncomeActivity : AppCompatActivity() {
 
                 )
             )
+        } else {
+            binding.txtIncome.text = "Expense Title"
         }
     }
 
@@ -184,14 +217,17 @@ class AddIncomeActivity : AppCompatActivity() {
                         categoryList.size - 1,
                         Category(0, name)
                     )
-
-                    CategoryPreference.saveCategories(this, categoryList)
-
+                    if (isExpense) {
+                        ExpenseCategoryPreference.saveCategories(this, categoryList)
+                    }  else {
+                        IncomeCategoryPreference.saveCategories(this, categoryList)
+                    }
                     val categoryAdapter = ArrayAdapter(
                         this,
                         android.R.layout.simple_dropdown_item_1line,
                         categoryList.map { it.name }
                     )
+                    binding.editCategory.setText(name)
                     binding.editCategory.setAdapter(categoryAdapter)
 
                 }

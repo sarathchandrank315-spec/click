@@ -71,7 +71,6 @@
                     android:id="@+id/editIncomeTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Remote Job"
                     android:padding="10dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -99,7 +98,7 @@
                     android:id="@+id/editIncome"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="$1500"
+                    android:hint="₹1500"
                     android:padding="10dp" />
             </com.google.android.material.textfield.TextInputLayout>
             <TextView

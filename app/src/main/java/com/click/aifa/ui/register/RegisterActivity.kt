@@ -2,6 +2,7 @@ package com.click.aifa.ui.register
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -9,6 +10,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.TopAppBar
 import androidx.lifecycle.lifecycleScope
 import com.click.aifa.R
 import com.click.aifa.data.User
@@ -50,6 +52,8 @@ class RegisterActivity : AppCompatActivity() {
         }
         // Example action
         binding.btnRegister.setOnClickListener {
+            if (!validateFields())
+                return@setOnClickListener
             if (familyList.isEmpty()) {
                 val name = binding.etName.text
                 MaterialAlertDialogBuilder(this)
@@ -59,68 +63,106 @@ class RegisterActivity : AppCompatActivity() {
                     .setNegativeButton(getString(R.string.no)) { dialog, _ -> goToDashBoard(dialog) }
                     .show()
             } else {
-                val name = binding.etName.text.toString()
-                val phone = binding.etPhone.text.toString()
-                val ageText = binding.etAge.text.toString()
-                val occupation = binding.etOccupation.text.toString()
-                val password = binding.etPassword.text.toString()
-                val confirmPassword = binding.etConfirmPassword.text.toString()
-// 🔴 Validate empty fields
-                when {
-                    name.isEmpty() -> {
-                        binding.etName.error = "Name is required"
-                        return@setOnClickListener
-                    }
-
-                    phone.isEmpty() -> {
-                        binding.etPhone.error = "Phone is required"
-                        return@setOnClickListener
-                    }
-
-                    ageText.isEmpty() -> {
-                        binding.etAge.error = "Age is required"
-                        return@setOnClickListener
-                    }
-
-                    occupation.isEmpty() -> {
-                        binding.etOccupation.error = "Occupation is required"
-                        return@setOnClickListener
-                    }
-
-                    password.isEmpty() -> {
-                        binding.etPassword.error = "Password is required"
-                        return@setOnClickListener
-                    }
-
-                    confirmPassword.isEmpty() -> {
-                        binding.etConfirmPassword.error = "Confirm password"
-                        return@setOnClickListener
-                    }
-
-                    password != confirmPassword -> {
-                        binding.etConfirmPassword.error = "Passwords do not match"
-                        return@setOnClickListener
-                    }
-                }
-
-                // ✔ Convert age safely
-                val age = ageText.toIntOrNull()
-                if (age == null) {
-                    binding.etAge.error = "Enter valid number"
-                    return@setOnClickListener
-                }
-                val user = UserEntity(
-                    age = age,
-                    name = name,
-                    phone = phone,
-                    password = password,
-                    occupation = occupation
-                )
-                insertUserToDatabase(user)
+                registerUser()
             }
 
         }
 
+    }
+
+    private fun validateFields(): Boolean {
+        val name = binding.etName.text.toString()
+        val phone = binding.etPhone.text.toString()
+        val ageText = binding.etAge.text.toString()
+        val occupation = binding.etOccupation.text.toString()
+        val password = binding.etPassword.text.toString()
+        val confirmPassword = binding.etConfirmPassword.text.toString()
+        // ✔ Convert age safely
+        val age = ageText.toIntOrNull()
+        // 🔴 Validate empty fields
+        when {
+
+            phone.isEmpty() -> {
+                binding.etPhone.error = "Phone is required"
+                return false
+            }
+
+            name.isEmpty() -> {
+                binding.etName.error = "Name is required"
+                return false
+            }
+
+            ageText.isEmpty() -> {
+                binding.etAge.error = "Age is required"
+                return false
+            }
+
+            occupation.isEmpty() -> {
+                binding.etOccupation.error = "Occupation is required"
+                return false
+            }
+
+            password.isEmpty() -> {
+                binding.etPassword.error = "Password is required"
+                return false
+            }
+
+            confirmPassword.isEmpty() -> {
+                binding.etConfirmPassword.error = "Confirm password"
+                return false
+            }
+
+            password != confirmPassword -> {
+                binding.etConfirmPassword.error = "Passwords do not match"
+                return false
+            }
+        }
+
+
+        // Phone validation
+        if (phone.isEmpty()) {
+            binding.etPhone.error = "Phone number required"
+            binding.etPhone.requestFocus()
+            return false
+        }
+
+        if (phone.length != 10 || !phone.all { it.isDigit() }) {
+            binding.etPhone.error = "Enter valid 10-digit phone number"
+            binding.etPhone.requestFocus()
+            return false
+        }
+
+        if (age == null) {
+            binding.etAge.error = "Enter valid age"
+            binding.etAge.requestFocus()
+            return false
+        }
+
+        if (age < 18) {
+            binding.etAge.error = "You must be above 18"
+            binding.etAge.requestFocus()
+            return false
+        }
+        return true
+
+    }
+
+    private fun registerUser() {
+        val name = binding.etName.text.toString()
+        val phone = binding.etPhone.text.toString()
+        val ageText = binding.etAge.text.toString()
+        val occupation = binding.etOccupation.text.toString()
+        val password = binding.etPassword.text.toString()
+        binding.etConfirmPassword.text.toString()
+        val age = ageText.toInt()
+        val user = UserEntity(
+            age = age,
+            name = name,
+            phone = phone,
+            password = password,
+            occupation = occupation
+        )
+        insertUserToDatabase(user)
     }
 
     private fun registerFamily(dialog: DialogInterface) {
@@ -130,6 +172,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun goToDashBoard(dialog: DialogInterface) {
         dialog.dismiss()
+        registerUser()
     }
 
     private fun showFamilyDialog() {
@@ -217,8 +260,14 @@ class RegisterActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
 
             // Insert user first
-            val userId = dao.insertUser(newUser).toInt()
-
+            val userId = try {
+                dao.insertUser(newUser).toInt()
+            } catch (e: android.database.sqlite.SQLiteConstraintException) {
+                runOnUiThread {
+                    Toast.makeText(this@RegisterActivity, "Phone number already exists", Toast.LENGTH_LONG).show()
+                }
+                 return@launch
+            }
             // Update family members userId
             val updatedFamily = familyList.map {
                 it.copy(userId = userId)
