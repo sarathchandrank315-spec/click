@@ -3,18 +3,23 @@ package com.click.aifa.ui.dashBoard.fragments
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.click.aifa.R
 import com.click.aifa.data.TransactionEntity
+import com.click.aifa.data.User
 import com.click.aifa.data.enums.TransactionType
+import com.click.aifa.data.user.UserSession
 import com.click.aifa.databinding.FragmentOverviewBinding
 import com.click.aifa.ui.addTransaction.adapter.TransactionAdapter
 import com.click.aifa.viewmodel.IncomeViewModel
@@ -25,6 +30,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.firebase.ai.type.imagenGenerationConfig
+import kotlinx.coroutines.launch
 import java.time.Month
 import java.time.format.TextStyle
 import java.util.Calendar
@@ -39,9 +45,9 @@ class StatisticsFragment : Fragment() {
     val calendar = Calendar.getInstance()
     val years = mutableListOf<Int>()
     val months = mutableListOf<String>()
-
-
-    private  var transactionList: List<TransactionEntity> =  mutableListOf<TransactionEntity>()
+    val users = mutableListOf<String>()
+    val days = mutableListOf<Any>()
+    private var transactionList: List<TransactionEntity> = mutableListOf<TransactionEntity>()
     var selectedYear = calendar.get(Calendar.YEAR)
     var selectedMonth = calendar.get(Calendar.MONTH) + 1
     var startYear = calendar.get(Calendar.YEAR)
@@ -54,7 +60,21 @@ class StatisticsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentOverviewBinding.inflate(inflater, container, false)
-        transactionAdapter = TransactionAdapter()
+        transactionAdapter = TransactionAdapter { transaction, view ->
+            val popup = PopupMenu(requireContext(), view)
+            popup.menu.add("Delete")
+
+            popup.setOnMenuItemClickListener {
+                if (it.title == "Delete") {
+                    lifecycleScope.launch {
+                        incomeViewModel.deleteIncome(transaction)
+                    }
+                }
+                true
+            }
+
+            popup.show()
+        }
         binding.recyclerTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerTransactions.adapter = transactionAdapter
         binding.spYear.setText(selectedYear.toString())
@@ -83,6 +103,43 @@ class StatisticsFragment : Fragment() {
         binding.spMonth.setOnClickListener {
             binding.spMonth.showDropDown()       // force show dropdown
         }
+        users.add("All")
+        UserSession.currentUser?.user?.name?.let {
+            users.add(it)
+        }
+        UserSession.currentUser?.familyMembers?.forEach {
+            users.add(it.name)
+        }
+
+        binding.spMember.apply {
+            Log.d("USERS_DEBUG", users.toString())  // 👈 Check this
+            setAdapter(
+                ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_list_item_1,
+                    users
+                )
+            )
+            keyListener = null
+            setOnClickListener {
+                showDropDown()
+            }
+        }
+        binding.spDate.apply {
+            setAdapter(
+                ArrayAdapter(
+                    requireContext(),
+                    android.R.layout.simple_list_item_1,
+                    days
+                )
+            )
+            keyListener = null
+            setOnClickListener {
+                showDropDown()
+            }
+        }
+        binding.spMember.setText(users.elementAt(0))
+        binding.spDate.setText("All")
         incomeViewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
         incomeViewModel.allIncomeList.observe(viewLifecycleOwner) { list ->
             if (list.isEmpty()) return@observe
@@ -98,30 +155,65 @@ class StatisticsFragment : Fragment() {
             _binding?.spYear?.setAdapter(
                 ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, years)
             )
+            months.clear()
+            months.addAll(getMonthsForYear(selectedYear, startYear, startMonth))
+            days.clear()
+            days.add("All")
+            days.addAll(getDaysForMonth(selectedYear,selectedMonth))
+            _binding?.spMonth?.setAdapter(
+                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, months)
+            )
+            _binding?.spDate?.setAdapter(
+                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, days)
+            )
+            _binding?.spMember?.setAdapter(
+                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, users)
+            )
             getWeeklySummaryForMonth(transactionList, selectedYear, selectedMonth)
 
         }
         _binding?.spYear?.setOnItemClickListener { _, _, pos, _ ->
             selectedYear = years[pos]
-
+            months.clear()
             months.addAll(getMonthsForYear(selectedYear, startYear, startMonth))
             _binding?.spMonth?.setAdapter(
                 ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, months)
             )
+            days.clear()
+            days.add("All")
+            days.addAll(getDaysForMonth(selectedYear,selectedMonth))
+            _binding?.spDate?.setAdapter(
+                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, days)
+            )
             getWeeklySummaryForMonth(transactionList, selectedYear, selectedMonth)
         }
         _binding?.spMonth?.setOnItemClickListener { _, _, pos, _ ->
-            selectedMonth = Month.valueOf(
-                months[pos].uppercase()
-            ).value
+            selectedMonth = getMonthNumber( months[pos])
+            getWeeklySummaryForMonth(transactionList, selectedYear, selectedMonth)
+            days.clear()
+            days.add("All")
+            days.addAll(getDaysForMonth(selectedYear,selectedMonth))
+            _binding?.spDate?.setAdapter(
+                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, days)
+            )
+        }
+        _binding?.spDate?.setOnItemClickListener { _, _, pos, _ ->
             getWeeklySummaryForMonth(transactionList, selectedYear, selectedMonth)
         }
-
+        _binding?.spMember?.setOnItemClickListener { _, _, pos, _ ->
+            getWeeklySummaryForMonth(transactionList, selectedYear, selectedMonth)
+        }
         setupTabs()
 
         return binding.root
     }
-
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMonthNumber(shortMonth: String): Int {
+        return Month.entries.first {
+            it.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+                .equals(shortMonth, ignoreCase = true)
+        }.value
+    }
     private fun setupTabs() {
         with(binding) {
             btnIncome.setOnClickListener {
@@ -206,10 +298,16 @@ class StatisticsFragment : Fragment() {
     fun filterByMonth(
         list: List<TransactionEntity>,
         year: Int,
-        month: Int
+        month: Int, day: Int = 0
     ): List<TransactionEntity> {
+        if (day > 0)
+            return list.filter {
+                getYear(it.date) == year && getMonth(it.date) == month &&
+                        getDay(it.date) == day
+            }
         return list.filter {
             getYear(it.date) == year && getMonth(it.date) == month
+
         }
     }
 
@@ -217,6 +315,12 @@ class StatisticsFragment : Fragment() {
         val cal = Calendar.getInstance()
         cal.timeInMillis = timestamp
         return cal.get(Calendar.WEEK_OF_MONTH)
+    }
+
+    fun getDay(timestamp: Long): Int {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        return calendar.get(Calendar.DAY_OF_MONTH)
     }
 
     fun getYear(timestamp: Long): Int {
@@ -236,8 +340,17 @@ class StatisticsFragment : Fragment() {
         year: Int,
         month: Int
     ) {
-
-        val monthData = filterByMonth(list, year, month)
+        val filteredList = if (!binding.spMember.text.toString().equals("all", true)) {
+            list.filter { it.payeePayer == binding.spMember.text.toString() }
+        } else {
+            list
+        }
+        val day = if (!binding.spDate.text.toString().equals("all", true)) {
+            binding.spDate.text.toString().toInt()
+        } else {
+            0
+        }
+        val monthData = filterByMonth(filteredList, year, month, day)
         monthData.let { transactions ->
             val income = transactions
                 .filter { it.type == TransactionType.INCOME }
@@ -300,10 +413,39 @@ class StatisticsFragment : Fragment() {
                 (1..12).map { monthName(it) }
         }
     }
+    fun getDaysForMonth(
+        selectedYear: Int,
+        selectedMonth: Int
+    ): List<Int> {
 
+        val todayCal = Calendar.getInstance()
+        val currentYear = todayCal.get(Calendar.YEAR)
+        val currentMonth = todayCal.get(Calendar.MONTH) + 1
+        val currentDay = todayCal.get(Calendar.DAY_OF_MONTH)
+
+        // Calendar for selected month
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.YEAR, selectedYear)
+            set(Calendar.MONTH, selectedMonth - 1) // 0-based
+        }
+
+        val maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+        return if (selectedYear == currentYear &&
+            selectedMonth == currentMonth
+        ) {
+            // Current month → no future days
+            (1..currentDay).toList()
+        } else {
+            // Any other month → full days
+            (1..maxDays).toList()
+        }
+    }
     @RequiresApi(Build.VERSION_CODES.O)
-    fun monthName(month: Int): String =
-        Month.of(month).name
+    fun monthName(month: Int): String {
+        return Month.of(month)
+            .getDisplayName(TextStyle.SHORT, Locale.getDefault())
+    }
 
 }
 

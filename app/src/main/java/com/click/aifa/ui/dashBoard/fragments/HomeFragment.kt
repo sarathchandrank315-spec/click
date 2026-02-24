@@ -5,13 +5,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.click.aifa.databinding.FragmentHomeBinding
 import com.click.aifa.ui.addTransaction.adapter.TransactionAdapter
 import com.click.aifa.viewmodel.IncomeViewModel
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
@@ -34,7 +37,21 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 1️⃣ Adapter
-        transactionAdapter = TransactionAdapter()
+        transactionAdapter = TransactionAdapter(){transaction, view ->
+            val popup = PopupMenu(requireContext(), view)
+            popup.menu.add("Delete")
+
+            popup.setOnMenuItemClickListener {
+                if (it.title == "Delete") {
+                    lifecycleScope.launch {
+                        incomeViewModel.deleteIncome(transaction)
+                    }
+                }
+                true
+            }
+
+            popup.show()
+        }
 
         // 2️⃣ RecyclerView setup (ONLY ONCE)
         binding.rvTransactions.apply {

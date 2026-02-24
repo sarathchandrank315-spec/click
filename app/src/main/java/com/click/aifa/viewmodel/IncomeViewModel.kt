@@ -30,4 +30,9 @@ class IncomeViewModel(application: Application) : AndroidViewModel(application) 
             repository.insert(transaction)
         }
     }
+    fun deleteIncome(transaction: TransactionEntity){
+        viewModelScope.launch {
+            repository.delete(transaction)
+        }
+    }
 }

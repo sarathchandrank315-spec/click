@@ -8,9 +8,10 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertUser(user: UserEntity): Long   // returns user id
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFamilyMembers(members: List<FamilyMemberEntity>)
-
+    @Update
+    suspend fun updateFamilyMembers(members: List<FamilyMemberEntity>)
     @Query("SELECT * FROM users WHERE phone = :phone")
     suspend fun getUserByPhone(phone: String): UserEntity?
 

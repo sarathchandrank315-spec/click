@@ -13,7 +13,7 @@ interface TransactionDao {
     fun getAllTransaction(): LiveData<List<TransactionEntity>>
 
     @Delete
-    suspend fun deleteIncome(income: TransactionEntity)
+    suspend fun deleteTransaction(income: TransactionEntity)
 
     @Query("SELECT IFNULL(SUM(amount), 0) FROM transactions WHERE type = 'INCOME'")
     fun getTotalIncome(): LiveData<Double>

@@ -272,7 +272,6 @@ class RegisterActivity : AppCompatActivity() {
             val updatedFamily = familyList.map {
                 it.copy(userId = userId)
             }
-
             dao.insertFamilyMembers(updatedFamily)
 
             withContext(Dispatchers.Main) {

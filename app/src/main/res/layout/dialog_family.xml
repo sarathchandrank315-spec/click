@@ -37,10 +37,15 @@
             android:layout_height="wrap_content"
             android:hint="Relation">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etRelation"
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/txtRelation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:hint="Relation"
+                android:padding="12dp"
+                android:inputType="none"
+                android:background="@android:color/transparent" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

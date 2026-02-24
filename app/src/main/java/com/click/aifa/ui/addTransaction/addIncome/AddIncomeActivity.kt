@@ -149,21 +149,58 @@ class AddIncomeActivity : AppCompatActivity() {
             val title = binding.editIncomeTitle.text.toString()
             val amount = binding.editIncome.text.toString().toDoubleOrNull() ?: 0.0
             val payeePayer = binding.editEarner.text.toString()
+            if (validateInput()) {
+                val income = TransactionEntity(
+                    user = UserSession.currentUser?.user?.name.toString(),
+                    title = title,
+                    amount = amount,
+                    category = binding.editCategory.text.toString(),
+                    date = currentDate,
+                    type = if (isExpense) TransactionType.EXPENSE else TransactionType.INCOME,
+                    payeePayer = payeePayer
+                )
 
-            val income = TransactionEntity(
-                user = UserSession.currentUser?.user?.name.toString(),
-                title = title,
-                amount = amount,
-                category = binding.editCategory.text.toString(),
-                date = currentDate,
-                type = if (isExpense) TransactionType.EXPENSE else TransactionType.INCOME,
-                payeePayer = payeePayer
-            )
-
-            viewModel.insertIncome(income)
-            Toast.makeText(this, "Income Added!", Toast.LENGTH_SHORT).show()
-            finish()
+                viewModel.insertIncome(income)
+                Toast.makeText(this, "Entry Added!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
+    }
+
+    private fun validateInput(): Boolean {
+
+        val title = binding.editIncomeTitle.text.toString().trim()
+        val amountText = binding.editIncome.text.toString().trim()
+        val payeePayer = binding.editEarner.text.toString().trim()
+
+        when {
+            title.isEmpty() -> {
+                binding.editIncomeTitle.error = "Enter title"
+                binding.editIncomeTitle.requestFocus()
+                return false
+            }
+
+            amountText.isEmpty() -> {
+                binding.editIncome.error = "Enter amount"
+                binding.editIncome.requestFocus()
+                return false
+            }
+
+            amountText.toDoubleOrNull() == null ||
+                    amountText.toDouble() <= 0 -> {
+                binding.editIncome.error = "Enter valid amount"
+                binding.editIncome.requestFocus()
+                return false
+            }
+
+            payeePayer.isEmpty() -> {
+                binding.editEarner.error = "Enter name"
+                binding.editEarner.requestFocus()
+                return false
+            }
+        }
+
+        return true
     }
 
     private fun customizeAppBar(topBar: TopbarLayoutBinding) {
@@ -199,7 +236,7 @@ class AddIncomeActivity : AppCompatActivity() {
                 )
             )
         } else {
-            binding.txtIncome.text = "Expense Title"
+            binding.txtIncome.text = "Income Title"
         }
     }
 
@@ -219,7 +256,7 @@ class AddIncomeActivity : AppCompatActivity() {
                     )
                     if (isExpense) {
                         ExpenseCategoryPreference.saveCategories(this, categoryList)
-                    }  else {
+                    } else {
                         IncomeCategoryPreference.saveCategories(this, categoryList)
                     }
                     val categoryAdapter = ArrayAdapter(

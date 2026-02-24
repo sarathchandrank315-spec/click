@@ -1,6 +1,7 @@
 package com.click.aifa.ui.addTransaction.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -13,7 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class TransactionAdapter :
+class TransactionAdapter ( private val onLongClick: (TransactionEntity, View) -> Unit):
     ListAdapter<TransactionEntity, TransactionAdapter.TransactionViewHolder>(DiffCallback()) {
 
     inner class TransactionViewHolder(val binding: ItemTransactionBinding) :
@@ -38,7 +39,10 @@ class TransactionAdapter :
             android.R.color.holo_green_dark
         else
             android.R.color.holo_red_dark
-
+        holder.binding.root.setOnLongClickListener {
+            onLongClick(item, holder.binding.root)
+            true
+        }
         holder.binding.tvAmount.setTextColor(
             ContextCompat.getColor(holder.itemView.context, color)
         )

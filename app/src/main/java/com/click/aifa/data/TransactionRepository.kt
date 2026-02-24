@@ -11,4 +11,8 @@ class TransactionRepository(private val dao: TransactionDao) {
     suspend fun insert(transaction: TransactionEntity) {
         dao.insertTransaction(transaction)
     }
+    suspend fun delete(transaction: TransactionEntity) {
+        dao.deleteTransaction(transaction)
+    }
+
 }

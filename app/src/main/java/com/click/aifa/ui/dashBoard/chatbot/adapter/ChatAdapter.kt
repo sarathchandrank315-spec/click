@@ -21,31 +21,57 @@ class ChatAdapter : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val msg = messages[position]
+
         with(holder.binding) {
+
             if (msg.isUser) {
                 userText.setBackgroundResource(R.drawable.bg_chat_user)
-                (userText.layoutParams as ViewGroup.MarginLayoutParams).apply {
-                    marginStart = 60
-                    marginEnd = 0
+                imgChat.visibility = View.GONE
+                imgUser.visibility = View.VISIBLE
+
+                if (msg.isLoading) {
+                    userText.text = "..."
+                } else {
+                    userText.text = msg.text
                 }
-                imgChat.visibility=View.GONE
-                userText.text=msg.text
+
             } else {
                 userText.setBackgroundResource(R.drawable.bg_chat_bot)
-                (userText.layoutParams as ViewGroup.MarginLayoutParams).apply {
-                    marginStart = 0
-                    marginEnd = 60
+                imgUser.visibility = View.GONE
+                imgChat.visibility = View.VISIBLE
+
+                if (msg.isLoading) {
+                    userText.text = "Typing..."
+                } else {
+                    userText.text = msg.text
                 }
-                imgUser.visibility=View.GONE
-                userText.text=msg.text
             }
         }
     }
-
     override fun getItemCount() = messages.size
 
     fun addMessage(message: ChatMessage) {
         messages.add(message)
         notifyItemInserted(messages.size - 1)
+    }
+    private var loadingPosition: Int? = null
+
+    fun showLoading() {
+        val loadingMessage = ChatMessage(
+            text = "",
+            isUser = false,
+            isLoading = true
+        )
+        messages.add(loadingMessage)
+        loadingPosition = messages.size - 1
+        notifyItemInserted(messages.size - 1)
+    }
+
+    fun removeLoading() {
+        loadingPosition?.let {
+            messages.removeAt(it)
+            notifyItemRemoved(it)
+            loadingPosition = null
+        }
     }
 }

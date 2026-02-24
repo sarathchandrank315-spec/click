@@ -93,23 +93,50 @@
             android:textColor="@android:color/black"
             android:textSize="16sp"
             android:textStyle="bold" />
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/spYear"
-            android:layout_width="150dp"
-            android:textSize="15dp"
-            android:paddingStart="10dp"
-            android:layout_height="wrap_content" />
 
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/spMonth"
-            android:layout_width="150dp"
-            android:paddingLeft="10dp"
-            android:layout_height="wrap_content" />
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="4">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/spYear"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingStart="10dp"
+                android:singleLine="true"
+                android:textSize="15dp" />
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/spMonth"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingLeft="10dp"
+                android:singleLine="true" />
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/spDate"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingLeft="10dp"
+                android:singleLine="true" />
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/spMember"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:paddingLeft="10dp"
+                android:singleLine="true" />
+        </LinearLayout>
 
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/barChart"
@@ -121,26 +148,28 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:gravity="center"
             android:layout_marginVertical="10dp"
             android:background="@drawable/bg_tab_switch"
+            android:gravity="center"
             android:weightSum="2">
+
             <TextView
                 android:id="@+id/btnIncome"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Income"
-                android:background="@drawable/bg_tab_income"
-                android:textColor="@color/white"
                 android:layout_weight="1"
-                android:gravity="center"/>
+                android:background="@drawable/bg_tab_income"
+                android:gravity="center"
+                android:text="Income"
+                android:textColor="@color/white" />
+
             <TextView
                 android:id="@+id/btnExpense"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Expense"
                 android:layout_weight="1"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:text="Expense" />
         </LinearLayout>
 
 

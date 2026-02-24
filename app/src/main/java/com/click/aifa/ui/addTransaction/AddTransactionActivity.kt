@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -16,6 +17,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.click.aifa.R
 import com.click.aifa.databinding.ActivityAddBinding
@@ -27,6 +29,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.coroutines.launch
 import java.io.File
 
 class AddTransactionActivity : AppCompatActivity() {
@@ -64,7 +67,21 @@ class AddTransactionActivity : AppCompatActivity() {
         customizeAppBar(binding.topBar)
         // RecyclerView setup
         // 1️⃣ Adapter
-        transactionAdapter = TransactionAdapter()
+        transactionAdapter = TransactionAdapter(){transaction, view ->
+            val popup = PopupMenu(this, view)
+            popup.menu.add("Delete")
+
+            popup.setOnMenuItemClickListener {
+                if (it.title == "Delete") {
+                    lifecycleScope.launch {
+                        incomeViewModel.deleteIncome(transaction)
+                    }
+                }
+                true
+            }
+
+            popup.show()
+        }
         binding.recyclerTransactions.layoutManager = LinearLayoutManager(this)
         binding.recyclerTransactions.adapter =transactionAdapter
         // 3️⃣ ViewModel
