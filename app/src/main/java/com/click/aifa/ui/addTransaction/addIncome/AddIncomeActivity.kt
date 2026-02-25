@@ -33,7 +33,7 @@ class AddIncomeActivity : AppCompatActivity() {
     var incomeCategoryList =
         mutableListOf(
             Category(1, "Salary", true),
-            Category(2, "Discount"),
+            Category(2, "Rental Income"),
             Category(3, "Add New")
         )
     var expenseCategoryList =
