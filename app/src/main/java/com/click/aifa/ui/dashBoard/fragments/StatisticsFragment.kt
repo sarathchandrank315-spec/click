@@ -364,25 +364,29 @@ class StatisticsFragment : Fragment() {
         }
 
         transactionAdapter.submitList(monthData.filter { it.type == selectedTType })
-        val data = monthData
+        val groupedData = monthData
             .groupBy { getWeekOfMonth(it.date) }
-            .map { (week, transactions) ->
 
-                val income = transactions
-                    .filter { it.type == TransactionType.INCOME }
-                    .sumOf { it.amount }
+        val maxWeek = groupedData.keys.maxOrNull() ?: 0
 
-                val expense = transactions
-                    .filter { it.type == TransactionType.EXPENSE }
-                    .sumOf { it.amount }
+        val data = (1..maxWeek).map { week ->
 
-                WeeklySummary(
-                    week = week,
-                    income = income,
-                    expense = expense
-                )
-            }
-            .sortedBy { it.week }
+            val transactions = groupedData[week] ?: emptyList()
+
+            val income = transactions
+                .filter { it.type == TransactionType.INCOME }
+                .sumOf { it.amount }
+
+            val expense = transactions
+                .filter { it.type == TransactionType.EXPENSE }
+                .sumOf { it.amount }
+
+            WeeklySummary(
+                week = week,
+                income = income,
+                expense = expense
+            )
+        }
         setupBarChart(binding.barChart, data)
     }
 

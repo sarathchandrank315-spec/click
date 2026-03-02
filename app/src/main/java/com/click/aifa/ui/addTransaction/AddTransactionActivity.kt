@@ -50,7 +50,7 @@ class AddTransactionActivity : AppCompatActivity() {
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
-              processImage(cameraImageUri)
+                processImage(cameraImageUri)
             }
         }
 
@@ -58,6 +58,7 @@ class AddTransactionActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let { processImage(it) }
         }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -67,7 +68,7 @@ class AddTransactionActivity : AppCompatActivity() {
         customizeAppBar(binding.topBar)
         // RecyclerView setup
         // 1️⃣ Adapter
-        transactionAdapter = TransactionAdapter(){transaction, view ->
+        transactionAdapter = TransactionAdapter { transaction, view ->
             val popup = PopupMenu(this, view)
             popup.menu.add("Delete")
 
@@ -83,7 +84,7 @@ class AddTransactionActivity : AppCompatActivity() {
             popup.show()
         }
         binding.recyclerTransactions.layoutManager = LinearLayoutManager(this)
-        binding.recyclerTransactions.adapter =transactionAdapter
+        binding.recyclerTransactions.adapter = transactionAdapter
         // 3️⃣ ViewModel
         incomeViewModel = ViewModelProvider(this)[IncomeViewModel::class.java]
 
@@ -101,9 +102,11 @@ class AddTransactionActivity : AppCompatActivity() {
                 .setTitle("Scan Bill")
                 .setMessage("Do you want to scan bill?")
                 .setPositiveButton(getString(R.string.yes)) { dialog, _ -> callScanner(dialog) }
-                .setNegativeButton("Add Manually") { dialog, _ -> startAddExpenseActivity(
-                   dialog= dialog
-                ) }
+                .setNegativeButton("Add Manually") { dialog, _ ->
+                    startAddExpenseActivity(
+                        dialog = dialog
+                    )
+                }
                 .show()
         }
     }
@@ -134,8 +137,8 @@ class AddTransactionActivity : AppCompatActivity() {
         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
 
 
-
     }
+
     private fun createImageUri(): Uri {
         val image = File(cacheDir, "images")
         image.mkdirs()
@@ -159,6 +162,7 @@ class AddTransactionActivity : AppCompatActivity() {
                         cameraImageUri = createImageUri()
                         takePictureLauncher.launch(cameraImageUri)
                     }
+
                     1 -> {
                         pickImage.launch("image/*")
                     }
@@ -174,7 +178,7 @@ class AddTransactionActivity : AppCompatActivity() {
 
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
-                extractDetails(visionText.text)
+                extractDetails(visionText.text.replace("\n", " "))
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Failed: ${it.message}", Toast.LENGTH_SHORT).show()
@@ -182,7 +186,18 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     fun extractDate(text: String): String? {
-        val regex = Regex("\\b\\d{2}/\\d{2}/\\d{4}\\b")
+
+        val regex = Regex(
+            "\\b(" +
+                    "\\d{2}[/-]\\d{2}[/-]\\d{4}" +                  // 17/01/2026 or 17-01-2026
+                    "|" +
+                    "\\d{4}[/-]\\d{2}[/-]\\d{2}" +                  // 2026/01/17 or 2026-01-17
+                    "|" +
+                    "\\d{1,2}\\s+[A-Za-z]{3,9}\\s+\\d{4}" +         // 17 Jan 2026 / 17 January 2026
+                    ")" +
+                    "\\b"
+        )
+
         return regex.find(text)?.value
     }
 
@@ -207,8 +222,8 @@ class AddTransactionActivity : AppCompatActivity() {
                     text.contains("food", true) -> "Food & Dining"
 
             text.contains("WEDDINGS", true) ||
-                    text.contains("SAREE", true)||
-                    text.contains("COTTON", true)||
+                    text.contains("SAREE", true) ||
+                    text.contains("COTTON", true) ||
                     text.contains("MUNDU", true) -> "Shopping"
 
             else -> "Unknown"
@@ -228,13 +243,39 @@ class AddTransactionActivity : AppCompatActivity() {
             Log.d("TAG", "extractTotalAmount:$pattern ")
             val regex = Regex(pattern, RegexOption.IGNORE_CASE)
             val match = regex.find(text)
-            if (match != null) return match.groupValues[1]
+            if (match != null) {
+                val value = match.groupValues[1].toDoubleOrNull()
+                val maxNumber = getMaxNumber(text)?.toDoubleOrNull()
+                return if (isLessThanEightyPercent(value, maxNumber)){
+                    maxNumber .toString()
+                }else{
+                    value.toString()
+                }
+            }
         }
         // 🔹 Step 2: If no pattern matched, find all numbers
-        val numberRegex = Regex("\\d+\\.?\\d*")
-        val numbers = numberRegex.findAll(text)
-            .map { it.value.toDoubleOrNull() }
-            .filterNotNull()
+        return getMaxNumber(text)
+    }
+
+    fun isLessThanEightyPercent(value: Double?, maxValue: Double?): Boolean {
+
+        if (value == null || maxValue == null || maxValue == 0.0) {
+            return false
+        }
+        val eightyPercentOfMax = maxValue * 0.8
+
+        return value < eightyPercentOfMax
+    }
+
+    private fun getMaxNumber(text: String): String? {
+        val regex = Regex("\\b\\d+[.,]\\d{2}\\b")
+
+         val numbers=regex.findAll(text)
+            .mapNotNull { match ->
+                match.value
+                    .replace(",", ".")   // convert 125,00 → 125.00
+                    .toDoubleOrNull()
+            }
             .toList()
 
         // 🔹 Step 3: Return largest number if exists
@@ -255,7 +296,7 @@ class AddTransactionActivity : AppCompatActivity() {
         Category: $category
     """.trimIndent()
         )
-        startAddExpenseActivity(null,amount,date,time,category)
+        startAddExpenseActivity(null, amount, date, time, category)
     }
 
 
